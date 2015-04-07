@@ -13,3 +13,12 @@ const char *atom_string(const char *str) {
     assert(str);
     return atom_new(str, strlen(str));
 }
+
+const char *atom_new(const char *str, int len) {
+}
+
+const int atom_len(const char *str) {
+}
+
+const char* atom_int(long n) {
+}

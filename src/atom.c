@@ -1,5 +1,5 @@
 #include "atom.h"
-#include <limit.h>
+#include <limits.h>
 #include <string.h>
 #include "assert.h"
 #define NELEMS(x) ((sizeof (x)) / (sizeof ((x)[0])))

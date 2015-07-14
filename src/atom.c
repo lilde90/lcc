@@ -3,12 +3,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include "assert.h"
+
 #define NELEMS(x) ((sizeof (x)) / (sizeof ((x)[0])))
+
 static struct atom {
     struct atom *link;
     int len;
     char *str;
 } *buckets[2048];
+
 static unsigned long str_hash[] = {
     2078917053, 143302914, 1027100827, 1953210302, 755253631, 2002600785,
     1405390230, 45248011, 1099951567, 433832350, 2018585307, 438263339,
@@ -54,6 +57,7 @@ static unsigned long str_hash[] = {
     2143346068, 1975249606, 1136476375, 262925046, 92778659, 1856406685,
     1884137923, 53392249, 1735424165, 1602280572
 };
+
 const char *atom_string(const char *str) {
     assert(str);
     return atom_new(str, strlen(str));

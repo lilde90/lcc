@@ -13,6 +13,8 @@
 #define NALLOC ((4096 + sizeof (union align) - 1)/ \
         (sizeof (union align))) * (sizeof (union align))
 
+const Except_T Mem_Failed = { "Allocation Failed" };
+
 union align {
     int i;
     long l;

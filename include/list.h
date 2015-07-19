@@ -3,12 +3,13 @@
 //
 #ifndef LIST_INCLUDED
 #define LIST_INCLUDED
-#define T LIST_T;
+
+#define T List_T
 typedef struct T *T;
 
 struct T {
-    T rest;
-    void *first;
+    T next;
+    void *data;
 };
 
 extern T List_append(T list, T tail);

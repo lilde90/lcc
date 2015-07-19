@@ -125,8 +125,8 @@ const char* atom_int(long n) {
         m = n;
     }
     do {
-        *--s = m%10 +'0';
-    } while((m/10) > 0);
+        *--s = m % 10 +'0';
+    } while((m / 10) > 0);
     if (n < 0) {
         *--s = '-';
     }

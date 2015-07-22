@@ -149,10 +149,156 @@ void **Set_toArray(T set, void *end) {
     return array;
 }
 
+T Set_union(T s, T t) {
+    if (t == NULL) {
+        assert(s);
+        return copy(s, s->size);
+    } 
+    if (s == NULL) {
+        assert(t);
+        return copy(t, t->size);
+    } 
+    T set = copy(s, s->size > t->size ? s->size : t->size);
+    assert(s->cmp == t->cmp && s->hash == t->hash);
+    int i;
+    struct member *p = NULL;
+    for (int i = 0; i < t->size; i++) {
+        for (p = set->buckets[i]; p; p = p->link) {
+            const void *member = p->member;
+            Set_put(set, member);
+        }
+    return set;
+    }
+}
+
+T Set_inter(T s, T t) {
+    if (s == NULL) {
+        assert(t);
+        return copy(t, t->size);
+    }
+    if (t == NULL) {
+        assert(s);
+        return copy(s, s->size);
+    }
+    if (s->length < t->length) {
+        return Set_inter(t, s);
+    } else {
+        T set = Set_new(s->size < t->size ? s->size : t->size, s->cmp, t->hash);
+        assert(s->cmp == t->cmp && s->hash == t->hash);
+        int i;
+        struct member *p = NULL;
+        for (i = 0; i < t->size; i++) {
+            for (p = t->buckets[i]; p; p = p->link) {
+                if (Set_member(s, p->member)) {
+                    struct member *q = NULL;
+                    int hash = (*set->hash)(p->member) % set->size;
+                    NEW(q);
+                    q->member = p->member;
+                    q->link = set->buckets[hash];
+                    set->buckets[hash] = q;
+                }
+            }
+        }
+        return set;
+    }
+}
+
+T Set_minus(T s, T t) {
+    if (s == NULL) {
+        assert(t);
+        return Set_new(t->size, t->cmp, t->hash);
+    }
+    if (t == NULL) {
+        assert(s);
+        return copy(s->size, s->cmp, s->hash);
+    }
+    T set = Set_new(s->size < t->size ? s->size : t->size, t->cmp, t->hash);
+    assert(s->cmp == t->cmp && s->hash == t->hash);
+    int i;
+    struct member *p = NULL;
+    for (i = 0; i < s->size; i++) {
+        for (p = s->buckets[i]; p; p = p->link) {
+            if (!Set_member(t, p->member)) {
+                struct member *q = NULL;
+                int hash = (*set->hash)(p->member) % set->size;
+                NEW(q);
+                q->member = p->member;
+                q->link = set->buckets[hash];
+                set->buckets[hash] = q;
+            }
+        }
+    }
+    return set;
+}
+        
+T Set_diff(T s, T t) {
+    if (s == NULL) {
+        assert(t);
+        return copy(t->size, t->cmp, t->hash);
+    }
+    if (t == NULL) {
+        assert(s);
+        return copy(s->size, s->cmp, s->hash);
+    }
+
+    T set = Set_new(s->size < t->size ? s->size : t->size, t->cmp, t->hash);
+    assert(s->cmp == t->cmp && s->hash == t->hash);
+    
+    int i;
+    struct member *p = NULL;
+    // s-t
+    for (i = 0; i < s->size; i++) {
+        for (p = s->buckets[i]; p; p = p->link) {
+            if (!Set_member(t, p->member)) {
+                struct member *q = NULL;
+                int hash = (*set->hash)(p->member) % set->size;
+                NEW(q);
+                q->member = p->member;
+                q->link = set->buckets[hash];
+                set->buckets[hash] = q;
+            }
+        }
+    }
+
+    // t-s
+    for (i = 0; i < t->size; i++) {
+        for (p = t->buckets[i]; p; p = p->link) {
+            if (!Set_member(s, p->member)) {
+                struct member *q = NULL;
+                int hash = (*set->hash)(p->member) % set->size;
+                NEW(q);
+                q->member = p->member;
+                q->link = set->buckets[hash];
+                set->buckets[hash] = q;
+            }
+        }
+    }
+}
+
 static int default_cmp(const void *x, const void *y) {
     return x != y;
 }
 
 static unsigned default_hash(const void *x) {
     return (unsigned long)x >> 2;
+}
+
+static T copy(T t, int hint) {
+    T set;
+    assert(t);
+    set = Set_new(hint, t->cmp, t->hash);
+    struct member *p = NULL;
+    int i;
+    for (i = 0; i < t->size; i++) {
+        for (p = t->buckets[i]; p; p = p->link) {
+            struct member *q;
+            const void *member = p->member;
+            int hash = (*set->hash)(member) % set->size;
+            NEW(q);
+            q->member = member;
+            q->link = set->buckets[hash];
+            set->buckets[hash] = q;
+        }
+    }
+    return set;
 }

@@ -28,6 +28,6 @@ extern T Set_diff(T s, T t);
 
 static int default_cmp(const void *x, const void *y);
 static unsigned default_hash(const void *x);
-
+static T copy(T t, int hint);
 #undef T
 #endif

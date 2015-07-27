@@ -21,6 +21,8 @@ extern void *Seq_addhi(T seq, void *x);
 extern void *Seq_remlo(T seq);
 extern void *Seq_remhi(T seq);
 
+static void expand(T seq);
+
 #undef T
 #endif
     

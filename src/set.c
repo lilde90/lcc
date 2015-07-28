@@ -210,7 +210,7 @@ T Set_minus(T s, T t) {
     }
     if (t == NULL) {
         assert(s);
-        return copy(s->size, s->cmp, s->hash);
+        return copy(s, s->size);
     }
     T set = Set_new(s->size < t->size ? s->size : t->size, t->cmp, t->hash);
     assert(s->cmp == t->cmp && s->hash == t->hash);
@@ -234,11 +234,11 @@ T Set_minus(T s, T t) {
 T Set_diff(T s, T t) {
     if (s == NULL) {
         assert(t);
-        return copy(t->size, t->cmp, t->hash);
+        return copy(t, t->size);
     }
     if (t == NULL) {
         assert(s);
-        return copy(s->size, s->cmp, s->hash);
+        return copy(s, s->size );
     }
 
     T set = Set_new(s->size < t->size ? s->size : t->size, t->cmp, t->hash);

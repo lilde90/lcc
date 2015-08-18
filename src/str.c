@@ -169,7 +169,7 @@ int str_cmp(const char *s1, int i1, int j1,
 int str_chr(const char *s, int i, int j, int c) {
     assert(s);
     convert(s, i, j);
-    for (int idx = i; idx <= j; idx++) {
+    for (int idx = i; idx < j; idx++) {
         if (s[idx] == c) {
             return idx + 1;
         }
@@ -180,7 +180,7 @@ int str_chr(const char *s, int i, int j, int c) {
 int str_rchr(const char *s, int i, int j, int c) {
     assert(s);
     convert(s, i, j);
-    for (int idx = j; idx >= i; idx--) {
+    for (int idx = j - 1; idx >= i; idx--) {
         if (s[idx] == c) {
             return idx + 1;
         }
@@ -188,3 +188,157 @@ int str_rchr(const char *s, int i, int j, int c) {
     return 0;
 }
 
+int str_upto(const char *s, int i, int j,
+        const char *set) {
+    assert(set);
+    convert(s, i, j);
+    for (int idx = i; idx < j; idx++) {
+        if (strchr(set, s[idx])) {
+            return idx + 1;
+        }
+    }
+    return 0;
+}
+
+int str_rupto(const char *s, int i, int j,
+        const char *set) {
+    assert(set);
+    convert(s, i, j);
+    for (int idx = j - 1; idx >= i; idx--) {
+        if (strrchr(set, s[idx])) {
+            return idx + 1;
+        }
+    }
+    return 0;
+}
+
+int str_find(const char *s, int i, int j,
+        const char *str) {
+    assert(str);
+    convert(s, i, j);
+    int len = strlen(str);
+    if (len == 0) {
+        return i + 1;
+    } else if (len == 1) {
+        for (int idx = i; idx < j; idx++) {
+            if (s[idx] == *str) {
+                return idx + 1;
+            }
+        }
+    } else {
+        for (int idx = i; idx + len <= j; idx++) {
+            if (strncmp(&s[idx], str, len) == 0) {
+                return idx + 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int str_rfind(const char *s, int i, int j,
+        const char *str) {
+    assert(str);
+    convert(s, i, j);
+    int len = strlen(str);
+    if (len == 0) {
+        return i + 1;
+    } else if (len == 1) {
+        for (int idx = j - 1; idx >= i; idx--) {
+            if (s[idx] == *str) {
+                return idx + 1;
+            }
+        }
+    } else {
+        for (int idx = j; idx - len >= i; idx--) {
+            if (strncmp(&s[idx - len], str, len) == 0) {
+                return idx - len + 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int str_any(const char *s, int i,
+        const char *set) {
+    assert(set);
+    assert(s);
+    int len = strlen(s);
+    i = idx(i, len);
+    assert(i >= 0 && i <= len);
+    if (i < len && strchr(set, s[i])) {
+        return i + 2;
+    }
+    return 0;
+}
+
+int str_many(const char *s, int i, int j,
+        const char *set) {
+    assert(set);
+    convert(s, i, j);
+    if (i < j && strchr(set, s[i])) {
+        do {
+            i++;
+        } while(i < j && strchr(set, s[i]));
+        return i + 1;
+    }
+    return 0;
+}
+
+int str_rmany(const char *s, int i, int j,
+        const char *set) {
+    assert(set);
+    convert(s, i, j);
+    if (j > i && strchr(set, s[j - 1])) {
+        do {
+            --j;
+        } while(j >= i && strchr(set, s[j]));
+        return j + 2;
+    }
+    return 0;
+}
+
+int str_match(const char *s, int i, int j,
+        const char *str) {
+    assert(str);
+    convert(s, i, j);
+    int len = strlen(str);
+    if (len == 0) {
+        return i + 1;
+    } else if (len == 1) {
+        if (i < j && s[i] == *str) {
+            return i + 2;
+        }
+    } else if (i + len <= j && strncmp(&s[i], str, len) == 0) {
+        return i + len + 1;
+    }
+    return 0;
+}
+
+int str_rmatch(const char *s, int i, int j,
+        const char *str) {
+    assert(str);
+    convert(s, i, j);
+    int len = strlen(str);
+    if (len == 0) {
+        return j + 1;
+    } else if (len == 1) {
+        if (j > i && s[j - 1] == *str) {
+            return j;
+        }
+    } else if (j - len >= i && strncmp(&s[j - len], str, len) == 0) {
+        return j - len + 1;
+    }
+    return 0;
+}
+
+void str_fmt(int code, va_list *app,
+        int put(int c, void* cl), void *cl,
+        unsigned char flags[], int width, int precision) {
+    char *s;
+    int i, j;
+    assert(app && flags);
+    s = va_arg(*app, char *);
+    i = va_arg(*app, int);
+    j = va_arg(*app, int);
+    convert(s, i, j);
+}

@@ -61,7 +61,35 @@ char *str_cat(const char *s1, int i1, int j1,
 }
 
 char *str_catv(const char *s, ...) {
-    return NULL;
+    char *str, *p;
+    const char *save = s;
+    va_list ap;
+    int i, j, len;
+    va_start(ap, s);
+    while (s) {
+        i = va_arg(ap, int);
+        j = va_arg(ap, int);
+        convert(s, i, j);
+        len += j - i;
+        s = va_arg(ap ,const char*);
+    }
+    va_end(ap);
+    p = str = ALLOC(len + 1);
+    s = save;
+    va_start(ap, s);
+    while (s) {
+        i = va_arg(ap, int);
+        j = va_arg(ap, int);
+        convert(s, i, j);
+        len += j - i;
+        while (i < j) {
+            *p++ = s[i++];
+        }
+        s = va_arg(ap, const char*);
+    }
+    va_end(ap);
+    *p = '\0';
+    return str;
 }
 
 char *str_reverse(const char *s, int i, int j) {
@@ -78,7 +106,33 @@ char *str_reverse(const char *s, int i, int j) {
 
 char *str_map(const char *s, int i, int j,
         const char *from, const char *to) {
-    return NULL;
+    static char map[256] = { 0 };
+    if (from && to) {
+        unsigned c;
+        for (c = 0; c < sizeof map; c++) {
+            map[c] = c;
+        }
+        while (*from && *to) {
+            map[(unsigned char)*from++] = *to++;
+        }
+        assert(*from == 0 && *to == 0);
+    } else {
+        assert(from == NULL && to == NULL && s);
+        assert(map['a']);
+    }
+
+    if (s) {
+        char *str, *p;
+        convert(s, i, j);
+        p = str= ALLOC(j - i + 1);
+        while (i < j) {
+            *p++ = map[(unsigned char)s[i++]];
+        }
+        *p = '\0';
+        return str;
+    } else {
+        return NULL;
+    }
 }
 
 int str_pos(const char *s, int i) {
@@ -94,4 +148,43 @@ int str_len(const char *s, int i, int j) {
     convert(s, i, j);
     return j - i;
 }
+
+int str_cmp(const char *s1, int i1, int j1,
+        const char *s2, int i2, int j2) {
+    convert(s1, i1, j1);
+    convert(s2, i2, j2);
+    s1 += i1;
+    s2 += i2;
+    if (j1 -i1 < j2 -i2) {
+        int cond = strncmp(s1, s2, j1 - i1);
+        return cond == 0 ? -1 : cond;
+    } else if (j1 - i1 > j2 -i2) {
+        int cond = strncmp(s1, s2, j2 - i2);
+        return cond == 0 ? +1 : cond;
+    } else {
+        return strncmp(s1, s2, j1 - i1);
+    }
+}
     
+int str_chr(const char *s, int i, int j, int c) {
+    assert(s);
+    convert(s, i, j);
+    for (int idx = i; idx <= j; idx++) {
+        if (s[idx] == c) {
+            return idx + 1;
+        }
+    }
+    return 0;
+}
+
+int str_rchr(const char *s, int i, int j, int c) {
+    assert(s);
+    convert(s, i, j);
+    for (int idx = j; idx >= i; idx--) {
+        if (s[idx] == c) {
+            return idx + 1;
+        }
+    }
+    return 0;
+}
+

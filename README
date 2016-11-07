@@ -1,4 +1,5 @@
 lcc: A Tiny C Standard Library
 lcc is a C Standard Library implementation inspired by C interface and implementations(David R.Hanson).
 lcc aims at providing a robust C Standard Library.
+o
 
